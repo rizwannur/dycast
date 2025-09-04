@@ -38,7 +38,7 @@ import { getLastOffset, getOffsetOrSpace } from './instance';
 import type { CSSProperties } from 'vue';
 import type { SkMessageProps } from './instance';
 
-// 组件属性
+// Component properties
 const props = withDefaults(defineProps<SkMessageProps>(), {
   id: '',
   type: 'default',
@@ -49,19 +49,19 @@ const props = withDefaults(defineProps<SkMessageProps>(), {
   pos: 'center'
 });
 
-// 抛出事件
+// Emit events
 const emit = defineEmits<{
   (e: 'destroy'): void;
 }>();
 
-// 是否开始过渡
+// Whether to start the transition
 const isStartTransition = ref(false);
-// 主体元素DOM
+// Main element DOM
 const elRef = ref<HTMLDivElement>();
-// 是否可见
+// Whether it is visible
 const visible = ref(false);
 const height = ref(0);
-// 监听组件变化
+// Listen for component changes
 useResizeObserver(elRef, () => {
   height.value = elRef.value!.getBoundingClientRect().height;
 });
@@ -74,46 +74,46 @@ const TypeIcons = {
   help: 'ice-help',
   default: ''
 };
-// 类型图标
+// Type icon
 const typeIcon = computed(() => {
   if (props.icon) return props.icon;
   else return TypeIcons[props.type];
 });
-// 上一个消息组件的底部在可视窗口中的纵坐标
+// The vertical coordinate of the bottom of the previous message component in the visible window
 const lastOffset = computed(() => getLastOffset(props.id));
-// 当前组件的顶部纵坐标
+// The vertical coordinate of the top of the current component
 const offset = computed(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
-// 当前组件的底部纵坐标
+// The vertical coordinate of the bottom of the current component
 const bottom = computed(() => height.value + offset.value);
-// 样式
+// Style
 const customStyle = computed<CSSProperties>(() => ({
   top: `${offset.value}px`,
   zIndex: props.zIndex
 }));
-// 组件加载完毕
+// Component loaded
 onMounted(() => {
-  // 开始计时
+  // Start timing
   startTimer();
-  // 开始过渡显示
+  // Start transition display
   visible.value = true;
 });
-// 计时器
+// Timer
 let timer: ReturnType<typeof setTimeout> | null = null;
-// 开始计时
+// Start timing
 const startTimer = () => {
   if (props.duration === 0) return;
   stopTimer();
   timer = setTimeout(() => {
     timer = null;
-    // 关闭
+    // Close
     close();
   }, props.duration);
 };
-// 清除计时
+// Clear timer
 const clearTimer = () => {
   stopTimer();
 };
-// 停止计时
+// Stop timer
 const stopTimer = () => {
   if (timer) {
     clearTimeout(timer);
@@ -121,11 +121,11 @@ const stopTimer = () => {
   }
 };
 
-// 关闭组件
+// Close component
 const close = function () {
   visible.value = false;
   nextTick(() => {
-    // 如果组件还未开始过渡，直接销毁
+    // If the component has not started the transition, destroy it directly
     if (!isStartTransition.value) {
       props.onClose?.();
       emit('destroy');
@@ -133,18 +133,18 @@ const close = function () {
   });
 };
 
-// 处理关闭
+// Handle close
 const handleClose = function () {
   props.onClose?.();
 };
 
-// 处理销毁
+// Handle destroy
 const handleDestory = function () {
-  // 通知销毁
+  // Notify destruction
   emit('destroy');
 };
 
-// 导出，使外部可访问
+// Export to make it accessible externally
 defineExpose({
   visible,
   bottom,

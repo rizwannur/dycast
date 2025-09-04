@@ -1,122 +1,122 @@
-# 抖音弹幕姬
+# Douyin Cast
 
 <p align=center>
   <a href="https://github.com/skmcj/dycast">
-    <img src="https://gcore.jsdelivr.net/gh/skmcj/pic-bed/common/dydm-bg-logo.png" alt="抖音弹幕姬" style="width: 200px">
+    <img src="https://gcore.jsdelivr.net/gh/skmcj/pic-bed/common/dydm-bg-logo.png" alt="Douyin Cast" style="width: 200px">
   </a>
 </p>
 
 <p align=center style="font-weight: bold;">
-   抖音弹幕姬
+   Douyin Cast
 </p>
 
-## 简介
+## Introduction
 
-一个用于获取抖音直播间弹幕的小作品
+A small project for fetching barrage comments from Douyin live streams.
 
-用户只需要输入直播间的房间号，程序就能实时获取对应直播间的弹幕，并将其解析展示出来，用户还可通过`ws/wss`地址将获取的弹幕信息转发到自己的后端以作它用（如：弹幕互动游戏、数据分析等）
+Users only need to enter the room number of a live stream, and the program can fetch the barrage comments of the corresponding live stream in real-time, parse and display them. Users can also forward the fetched barrage information to their own backend for other purposes (such as interactive barrage games, data analysis, etc.) through a `ws/wss` address.
 
-### 实现功能
+### Features
 
-- 获取直播间连接信息
-- 连接直播间，获取直播间弹幕
-  - 实现重连机制，能一定程度保证连接的稳定性
-- 转发直播间弹幕
-  - 主要为解析提取后的弹幕，通过序列化`json`的格式
-- 分类展示直播间弹幕
-  - 聊天弹幕(包含文本、普通表情、会员表情、合并表情等)
-  - 礼物弹幕
-  - 关注弹幕
-  - 点赞弹幕(包含点赞数量)
-  - 进入弹幕
-  - 其它信息(如连接过程的一些提示)
-- 展示直播间信息，如人数等
+- Get live stream connection information
+- Connect to the live stream and get barrage comments
+  - Implement a reconnection mechanism to ensure connection stability to a certain extent
+- Forward live stream barrage
+  - Mainly for parsed and extracted barrage, in serialized `json` format
+- Categorize and display live stream barrage
+  - Chat barrage (including text, regular emojis, member emojis, combined emojis, etc.)
+  - Gift barrage
+  - Follow barrage
+  - Like barrage (including the number of likes)
+  - Entry barrage
+  - Other information (such as some tips during the connection process)
+- Display live stream information, such as the number of viewers, etc.
 
-## 实现原理
+## Implementation Principle
 
-主要需解决两个难点，分别为计算抖音弹幕的`wss`链接和解析接收到的二进制弹幕数据
+There are two main difficulties to solve: calculating the `wss` link for Douyin barrage and parsing the received binary barrage data.
 
-- 计算抖音弹幕的`wss`链接
+- Calculating the `wss` link for Douyin barrage
 
-  - 进入抖音直播间，打开浏览器的网络请求面板，可看到有一个`ws`链接，其则为抖音直播间实时弹幕通信链接
-  - 观察它的协议地址，主要包含一个最重要的参数`signature`，其需通过`roomId`与`uniqueId`计算得出，通过断点跟随，执行一些逆向工程，即可知道其大致的计算原理
-  - 本项目将对应计算函数封装在`src/core/signature`文件内
-  - 计算出`signature`参数后，再将其与前面的`roomId`与`uniqueId`整合，即可得到完整的`wss`链接
-  - 之后建立链接，接收数据即可
+  - Enter a Douyin live stream, open the browser's network request panel, and you can see a `ws` link, which is the real-time barrage communication link for the Douyin live stream.
+  - Observe its protocol address, which mainly contains a most important parameter `signature`, which needs to be calculated from `roomId` and `uniqueId`. By following breakpoints and performing some reverse engineering, you can know its approximate calculation principle.
+  - This project encapsulates the corresponding calculation function in the `src/core/signature` file.
+  - After calculating the `signature` parameter, combine it with the previous `roomId` and `uniqueId` to get the complete `wss` link.
+  - Then establish a connection and receive data.
 
-- 解析弹幕数据
+- Parsing barrage data
 
-  - 成功建立链接后，会发现接收到的数据为二进制串
+  - After successfully establishing a connection, you will find that the received data is a binary string.
 
-  - 在网上查阅资料可知，其运用技术为`protobuf`协议传输，要解析，需对应的`proto`文件
+  - After consulting online materials, it is known that it uses the `protobuf` protocol for transmission. To parse it, you need the corresponding `proto` file.
 
-  - 相应的`proto`文件可通过进入直播间，通过一些逆向工程，模仿其背后解析的对象结构，整合出相应的`proto`文件
+  - The corresponding `proto` file can be obtained by entering the live stream, performing some reverse engineering, imitating the object structure parsed behind it, and integrating the corresponding `proto` file.
 
-  - 具体可自行尝试，如没有思路，可通过一些关键词搜寻，如`PushFrame`、`WebcastChatMessage`等
+  - You can try it yourself. If you have no idea, you can search for some keywords, such as `PushFrame`, `WebcastChatMessage`, etc.
 
-  - 得出弹幕数据的`proto`文件后，使用`protoc`或其它一些工具将其编译为各种语言的文件
+  - After obtaining the `proto` file of the barrage data, use `protoc` or other tools to compile it into files in various languages.
 
-  - 本项目主要是编译为`ts`文件，通过`protobufjs`进行编译，并对产物进行魔改，将`Long`改为字符串
+  - This project mainly compiles it into a `ts` file, compiles it through `protobufjs`, and modifies the product to change `Long` to a string.
 
     - ```sh
-      # 参考命令
+      # Reference command
       pbjs --ts model.ts model.proto
       ```
     
-  - 生成的`[model.ts]`即可在项目引入使用
+  - The generated `[model.ts]` can be imported and used in the project.
   
-- 有了解析文件后，即可使用其解析弹幕数据。将`ws`获取到的一帧数据解析为`PushFrame`，其中的`payload`依旧为一段二进制数据，且经过了`gzip`压缩，对其进行解压后，解析为`Response`，其中的`messages`即为对应的消息数据，结构为`Message`类型，其中的`payload`解析后即为具体的弹幕消息体，主要解析类型有`ChatMessage`、`MemberMessage`、`LikeMessage`等。
+- After having the parsing file, you can use it to parse the barrage data. Parse a frame of data obtained from `ws` into `PushFrame`. The `payload` in it is still a piece of binary data and has been compressed by `gzip`. After decompressing it, parse it into `Response`. The `messages` in it are the corresponding message data, the structure is `Message` type, and the `payload` in it is the specific barrage message body after parsing. The main parsing types are `ChatMessage`, `MemberMessage`, `LikeMessage`, etc.
   
-- 以上的`PushFrame`、`··· ···`均为弹幕数据的`proto`结构，具体可自行了解
+- The above `PushFrame`, `...` are all `proto` structures of barrage data. You can learn more about them yourself.
 
-## 数据结构
+## Data Structure
 
-包装传给后台的数据
+Packaging data to be sent to the backend
 
 ```typescript
-/** 最后的整理转发的弹幕消息结构 */
+/** The final organized and forwarded barrage message structure */
 export interface DyMessage {
-  // 弹幕 ID
+  // Barrage ID
   id?: string;
-  // 弹幕类型
+  // Barrage type
   method?: CastMethod;
-  // 用户信息
+  // User information
   user?: CastUser;
-  // 礼物信息(当类型为礼物弹幕时有值)
+  // Gift information (has a value when the type is gift barrage)
   gift?: CastGift;
-  // 弹幕文本
+  // Barrage text
   content?: string;
-  // 富文本信息
+  // Rich text information
   rtfContent?: CastRtfContent[];
-  // 房间相关信息
+  // Room related information
   room?: LiveRoom;
-  // 礼物排行榜信息
+  // Gift ranking information
   rank?: LiveRankItem[];
 }
 
-/** 直播间信息 */
+/** Live stream information */
 export interface LiveRoom {
   /**
-   * 在线观众数
+   * Number of online viewers
    */
   audienceCount?: number | string;
   /**
-   * 本场点赞数
+   * Number of likes in this session
    */
   likeCount?: number | string;
   /**
-   * 主播粉丝数
+   * Number of anchor's fans
    */
   followCount?: number | string;
   /**
-   * 累计观看人数
+   * Cumulative number of viewers
    */
   totalUserCount?: number | string;
-  /** 房间状态 */
+  /** Room status */
   status?: number;
 }
 /**
- * 送礼点赞榜
+ * Gift and like ranking
  */
 export interface LiveRankItem {
   nickname: string;
@@ -131,43 +131,43 @@ export interface CastUser {
   name?: string;
   // user.avatar_thumb.url_list.0
   avatar?: string;
-  // 性别(猜测) 0 | 1 | 2 => 未知 | 男 | 女
+  // Gender (guess) 0 | 1 | 2 => Unknown | Male | Female
   gender?: number;
 }
 
 export interface CastGift {
   id?: string;
   name?: string;
-  // 价值抖音币 diamond_count
+  // Value in Douyin coins diamond_count
   price?: number;
   type?: number;
-  // 描述
+  // Description
   desc?: string;
-  // 图片
+  // Image
   icon?: string;
-  // 数量 repeat_count | combo_count
+  // Quantity repeat_count | combo_count
   count?: number | string;
-  // 礼物消息可能重复发送，0 表示第一次，未重复
+  // Gift messages may be sent repeatedly, 0 means the first time, not repeated
   repeatEnd?: number;
 }
 
 /**
- * 富文本类型
- *  1 - 普通文本
- *  2 - 合并表情
+ * Rich text type
+ *  1 - Plain text
+ *  2 - Combined emoji
  */
 export enum CastRtfContentType {
   TEXT = 1,
   EMOJI = 2
 }
 
-// 富文本
+// Rich text
 export interface CastRtfContent {
   type?: CastRtfContentType;
   text?: string;
   url?: string;
 }
-// 弹幕类型
+// Barrage type
 export enum CastMethod {
   CHAT = 'WebcastChatMessage',
   GIFT = 'WebcastGiftMessage',
@@ -181,131 +181,131 @@ export enum CastMethod {
   EMOJI_CHAT = 'WebcastEmojiChatMessage',
   FANSCLUB = 'WebcastFansclubMessage',
   ROOM_DATA_SYNC = 'WebcastRoomDataSyncMessage',
-  /** 自定义消息 */
+  /** Custom message */
   CUSTOM = 'CustomMessage'
 }
 ```
 
-**注意：** 理论上，接收的原始弹幕数据包含抖音弹幕该有的全部数据，但传递给后台的目前只提取包装了以上较为重要的数据，如需其它数据，可自行研究包装修改，目标文件为`src/core/dycast.ts`
+**Note:** In theory, the received raw barrage data contains all the data that Douyin barrage should have, but currently only the more important data above is extracted and packaged for the backend. If you need other data, you can research and package it yourself. The target file is `src/core/dycast.ts`.
 
-## 项目预览
+## Project Preview
 
-完整项目演示，请移步[哔哩哔哩](https://www.bilibili.com/video/BV1Vj411c7FF/)
+For a complete project demonstration, please go to [Bilibili](https://www.bilibili.com/video/BV1Vj411c7FF/)
 
-- 项目运行后，具体界面展示如下
+- After the project is running, the specific interface is displayed as follows
 
-  ![主界面](https://static.ltgcm.top/md/20250428180514.png)
+  ![Main interface](https://static.ltgcm.top/md/20250428180514.png)
 
-  - 整体界面为三栏布局：左侧为直播间信息及连接状态展示；中间为主要弹幕展示；右侧为输入及其它信息展示
-  - 右侧主要包含两个输入框，第一个为房间号输入框，第二个为转发地址输入框；输入带有格式验证，格式不正确无法连接
-  - 弹幕展示列表右侧的一排图标按钮表示当前列表所展示的弹幕类型，点击可控制其显隐
+  - The overall interface is a three-column layout: the left side is for live stream information and connection status display; the middle is for the main barrage display; the right side is for input and other information display.
+  - The right side mainly contains two input boxes. The first is the room number input box, and the second is the forwarding address input box. The input has format verification, and you cannot connect if the format is incorrect.
+  - The row of icon buttons on the right side of the barrage display list indicates the type of barrage currently displayed in the list. You can click to control its visibility.
 
-- 在右侧房间号输入框输入房间号后，点击**连接**，等待几秒后，会在左下方状态信息展示连接结果，有时可能出现网络拥堵情况，稍后再连接即可，正常连接成功/失败均会有相应的消息通知提示，也可以看控制台输出。连接成功后，大致展示如下：
+- After entering the room number in the room number input box on the right, click **Connect**. After waiting for a few seconds, the connection result will be displayed in the status information in the lower left corner. Sometimes network congestion may occur, you can connect later. Normally, there will be corresponding message notifications for successful/failed connections, and you can also check the console output. After a successful connection, the display is roughly as follows:
 
-  ![结果](https://static.ltgcm.top/md/20250428181510.png)
+  ![Result](https://static.ltgcm.top/md/20250428181510.png)
 
-- 此时，用户可在转发信息框填入自己的`WebSocket`服务端地址，点击**转发**，即可建立连接，将弹幕信息实时传送到所设置后端
+- At this time, the user can fill in their own `WebSocket` server address in the forwarding information box, click **Forward**, and a connection can be established to transmit the barrage information to the set backend in real-time.
 
-## 部署步骤
+## Deployment Steps
 
-- 项目依赖安装
+- Project dependency installation
 
     ```sh
     npm install
     ```
 
-- 项目运行
+- Project execution
 
     ```sh
     npm run dev
     ```
 
-- 项目打包
+- Project packaging
 
     ```sh
     npm run build
     ```
 
-- 项目部署到`nginx`
+- Deploying the project to `nginx`
 
   ```nginx
-  # 配置网络监听
+  # Configure network listening
   server {
-      # 监听端口号，如：1234
+      # Listening port number, e.g.: 1234
       listen       1234;
-      # 监听地址，可以是域名或ip地址，可正则书写
+      # Listening address, can be a domain name or IP address, can be written with regular expressions
       server_name  localhost;
   
       location / {
           add_header Access-Control-Allow-Origin *;
-          # 根目录，即项目打包内容位置(···/dist)，可以是项目的本地路径
+          # Root directory, that is, the location of the project packaging content (.../dist), can be the local path of the project
           root   /var/dycast;
-          # 配置默认主页文件
+          # Configure the default home page file
           index  index.html index.htm;
-          # 配置单页面应用刷新问题，默认返回主页
+          # Configure the single-page application refresh problem, return to the home page by default
           try_files $uri $uri/ /index.html;
       }
       
-      # 配置接口跨域
+      # Configure interface cross-domain
       location /dylive {
-          # proxy_pass 你要跨域的的接口地址
+          # proxy_pass The address of the interface you want to cross-domain
           proxy_pass https://live.douyin.com/;
   
-          # 响应头大小
+          # Response header size
           proxy_buffer_size 64k;
-          # 响应体大小 = 数量 * size
+          # Response body size = quantity * size
           proxy_buffers   32 64k;
-          # 处于busy状态的buffer大小，一般为 proxy_buffer_size * 2
+          # The size of the buffer in the busy state, generally proxy_buffer_size * 2
           proxy_busy_buffers_size 128k;
   
-          # 修改请求头
+          # Modify request header
           proxy_set_header Host live.douyin.com;
           proxy_set_header Referer 'https://live.douyin.com/';
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          # 如果需要配置移动端打开也能用
-          # 需设置请求头 User-Agent，伪装 PC 端 UA，防止移动端重定向
+          # If you need to configure it to be available on mobile devices
+          # You need to set the request header User-Agent to disguise the PC UA to prevent mobile redirection
           set $ua $http_user_agent;
           if ($http_user_agent ~* "(iphone|ipad|android|mobile)") {
               set $ua "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0";
           }
           proxy_set_header User-Agent $ua;
   
-          # 处理响应 Set-Cookie
-          # 确保 Set-Cookie 能正常设置到当前域下
-          # 清空 Domain
+          # Process response Set-Cookie
+          # Ensure that Set-Cookie can be set normally to the current domain
+          # Clear Domain
           proxy_cookie_domain ~.* $host;
-          # 统一 Path
+          # Unify Path
           proxy_cookie_path / /;
           
-          # 清除 SameSite / Secure
-          # 不一定都需要设置，某些浏览器需要
-          # 可借助 ngx_headers_more 模块实现
+          # Clear SameSite / Secure
+          # Not necessarily all need to be set, some browsers need it
+          # Can be implemented with the help of the ngx_headers_more module
   
-          # 确保 Set-Cookie 被转发到客户端
+          # Ensure that Set-Cookie is forwarded to the client
           proxy_pass_header Set-Cookie;
           
   
-          # 重写路径 - 移除/dylive前缀
+          # Rewrite path - remove /dylive prefix
           rewrite ^/dylive/(.*) /$1 break;
       }
       
       location /socket {
-          # Nginx 不区分 ws / wss 协议
-          # WebSocket 实际上是通过 HTTP 升级实现的
-          # 故使用 https:// 非 wss://
+          # Nginx does not distinguish between ws / wss protocols
+          # WebSocket is actually implemented through HTTP upgrade
+          # Therefore, use https:// instead of wss://
           proxy_pass https://webcast5-ws-web-lf.douyin.com/;
   
-          # WebSocket 关键配置
+          # WebSocket key configuration
           proxy_http_version 1.1;
           proxy_set_header Upgrade $http_upgrade;
           proxy_set_header Connection "upgrade";
   
-          # 跨域相关头
+          # Cross-domain related headers
           proxy_set_header Origin https://live.douyin.com;
           proxy_set_header Host webcast5-ws-web-lf.douyin.com;
   
-          # 可选：保留 Cookie 头，用于认证
+          # Optional: Keep the Cookie header for authentication
           proxy_set_header Cookie $http_cookie;
           
           set $ua $http_user_agent;
@@ -314,7 +314,7 @@ export enum CastMethod {
           }
           proxy_set_header User-Agent $ua;
   
-          # 重写路径 - 移除/socket
+          # Rewrite path - remove /socket
           rewrite ^/socket/(.*) /$1 break;
       }
   
@@ -326,18 +326,18 @@ export enum CastMethod {
 
 ![Star History Chart](https://api.star-history.com/svg?repos=skmcj/dycast&type=Date)
 
-## 打赏
+## Donation
 
 <p align=center>
-  <img src="https://static.ltgcm.top/md/20250428191027.png" alt="打赏" style="width: 350px">
+  <img src="https://static.ltgcm.top/md/20250428191027.png" alt="Donation" style="width: 350px">
 </p>
 
 <p align=center style="color: #68945c;">
-   如果想支持本项目的持续维护，可以投喂UP (｀･ω･´)ゞ敬礼っ
+   If you want to support the continuous maintenance of this project, you can feed the UP (｀･ω･´)ゞSalute
 </p>
 
 
 
-## 免责声明
+## Disclaimer
 
-本项目仅用于学习交流使用，禁止一切非法滥用，否则后果自负
+This project is for learning and communication purposes only. All illegal abuses are prohibited, otherwise you will be responsible for the consequences.

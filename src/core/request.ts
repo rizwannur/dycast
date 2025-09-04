@@ -4,7 +4,7 @@ import { getMsToken } from './signature';
 import { makeUrlParams, parseLiveHtml } from './util';
 
 /**
- * 请求直播间信息
+ * Request live room information
  */
 export const fetchLiveInfo = async function (id: string) {
   try {
@@ -16,8 +16,8 @@ export const fetchLiveInfo = async function (id: string) {
 };
 
 /**
- * 获取直播间信息
- * @param id 房间号
+ * Get live room information
+ * @param id Room number
  * @returns
  */
 export const getLiveInfo = async function (id: string) {
@@ -26,9 +26,9 @@ export const getLiveInfo = async function (id: string) {
     const first = parseLiveHtml(html);
     if (first) return first;
     else {
-      // 如第一次请求无 cookie => __ac_nonce，无法获得目标信息
-      // 但第一次请求会返回 cookie => __ac_nonce
-      // 请求第二次
+      // If the first request has no cookie => __ac_nonce, the target information cannot be obtained
+      // But the first request will return a cookie => __ac_nonce
+      // Request for the second time
       const realHtml = await fetchLiveInfo(id);
       const second = parseLiveHtml(realHtml);
       if (second) return second;
@@ -49,7 +49,7 @@ const BROWSER_NAME = navigator.appCodeName || 'Mozilla';
 const VERSION_CODE = 180800;
 
 /**
- * 接口默认参数
+ * Default interface parameters
  *  - /webcast/im/fetch
  */
 const defaultIMFetchParams = {
@@ -83,16 +83,16 @@ const defaultIMFetchParams = {
 };
 
 /**
- * 请求初次连接信息
+ * Request initial connection information
  *  - im/fetch
  * @param roomId
  * @param uniqueId
- * @param roomNum 房间号；暂不需要
+ * @param roomNum Room number; not currently needed
  */
 export const fetchImInfo = async function (roomId: string, uniqueId: string) {
-  // 请求需要一些关键参数：msToken、a_bogus
-  // 请求成功后会响应 protobuf 二进制数据，解码为 model 的 Response 类型
-  // 主要需要里面的 cursor、internal_ext 值
+  // The request requires some key parameters: msToken, a_bogus
+  // After the request is successful, it will respond with protobuf binary data, which is decoded into the Response type of the model
+  // Mainly need the cursor and internal_ext values inside
   try {
     const msToken = getMsToken(184);
     const params = Object.assign({}, defaultIMFetchParams, {
@@ -100,14 +100,14 @@ export const fetchImInfo = async function (roomId: string, uniqueId: string) {
       room_id: roomId,
       user_unique_id: uniqueId
     });
-    // 一个加密参数，须通过上侧 params 参数计算，感兴趣自己去逆向，这里不解析，不一定验证
+    // An encrypted parameter that must be calculated through the params parameter above. If you are interested, you can reverse it yourself. It is not parsed here and may not be verified.
     const aBogus = '00000000';
     Object.assign(params, {
       live_pc: roomId,
       a_bogus: aBogus
     });
     const url = `/dylive/webcast/im/fetch/?${makeUrlParams(params)}`;
-    // 不清楚接口是否有 referer 验证，需要的话，得在服务器跨域配置处设置，这里配置无效
+    // It is not clear whether the interface has referer verification. If it is needed, it must be set in the server's cross-domain configuration. The configuration here is invalid.
     // const headers = {
     //   Referer: `https://live.douyin.com/${roomNum}`
     // };
@@ -119,7 +119,7 @@ export const fetchImInfo = async function (roomId: string, uniqueId: string) {
 };
 
 /**
- * 获取初次连接信息
+ * Get initial connection information
  * @param roomId
  * @param uniqueId
  * @returns
@@ -128,7 +128,7 @@ export const getImInfo = async function (roomId: string, uniqueId: string): Prom
   const reqMs = Date.now();
   try {
     const buffer = await fetchImInfo(roomId, uniqueId);
-    // 请求出错返回的可能为json
+    // The return of a request error may be json
     const res = decodeResponse(new Uint8Array(buffer));
     return {
       cursor: res.cursor,
@@ -141,7 +141,7 @@ export const getImInfo = async function (roomId: string, uniqueId: string): Prom
     };
   } catch (err) {
     const now = Date.now();
-    // 确保能返回 cursor、internalExt
+    // Ensure that cursor and internalExt can be returned
     return {
       cursor: `r-7497180536918546638_d-1_u-1_fh-7497179772733760010_t-${now}`,
       internalExt: `internal_src:dim|wss_push_room_id:${roomId}|wss_push_did:${uniqueId}|first_req_ms:${reqMs}|fetch_time:${now}|seq:1|wss_info:0-${now}-0-0|wrds_v:7497180515443673855`

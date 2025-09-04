@@ -1,5 +1,5 @@
 /**
- * 日志等级
+ * Log level
  */
 enum LogLevel {
   Debug = 1,
@@ -16,7 +16,7 @@ const levelNames: Record<LogLevel, string> = {
 };
 
 const consoleMethod: Record<LogLevel, (...data: any[]) => void> = {
-  // debug 会被浏览器默认隐藏
+  // debug is hidden by default by the browser
   // [LogLevel.Debug]: console.debug,
   [LogLevel.Debug]: console.log,
   [LogLevel.Info]: console.info,
@@ -25,18 +25,18 @@ const consoleMethod: Record<LogLevel, (...data: any[]) => void> = {
 };
 
 interface Trace {
-  // 调用函数
+  // Calling function
   caller: string;
-  // 文件路径
+  // File path
   location: string;
 }
 
 interface LogData {
-  // 日志头
+  // Log header
   header: string;
-  // 样式
+  // Style
   style: string;
-  // 输出数据
+  // Output data
   args: any[];
 }
 
@@ -50,24 +50,24 @@ const styles = {
 interface LoggerConfig {
   prefix?: string;
   level?: LogLevel;
-  // 是否输出栈
+  // Whether to output the stack
   trace?: boolean;
-  // 是否可用
+  // Whether it is available
   enabled?: boolean;
 }
 
 /**
- * 自封装日志工具
+ * Self-encapsulated logging tool
  */
 class Logger {
-  /** 配置 */
+  /** Configuration */
   private prefix: string;
   private enabled: boolean;
   private level: LogLevel;
   private trace: boolean;
 
   /**
-   * 日志工具
+   * Logging tool
    */
   constructor(config: LoggerConfig = {}) {
     this.prefix = config.prefix || '';
@@ -77,7 +77,7 @@ class Logger {
   }
 
   /**
-   * 设置日志等级
+   * Set log level
    * @param level
    */
   public setLevel(level: LogLevel) {
@@ -85,7 +85,7 @@ class Logger {
   }
 
   /**
-   * 设置是否输出调用栈
+   * Set whether to output the call stack
    * @param flag
    */
   public setTrace(flag: boolean) {
@@ -93,7 +93,7 @@ class Logger {
   }
 
   /**
-   * 获取调用栈
+   * Get the call stack
    * @returns
    */
   private getTrace(origin?: string) {
@@ -117,7 +117,8 @@ class Logger {
     else return null;
   }
 
-  /** 获取调用栈 */
+
+  /** Get call stack */
   private getCallTrace() {
     const origin = new Error().stack;
     const stacks = this.getTrace(origin);
@@ -126,44 +127,44 @@ class Logger {
     return stack.caller;
   }
 
-  /** 是否需要输出 */
+  /** Whether to output */
   private isLog(level: LogLevel) {
     return this.enabled && level >= this.level;
   }
 
-  /** 获取输出前缀 */
+  /** Get output prefix */
   private getLogPrefix(level: LogLevel) {
     const time = this.formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss.SSS');
     const prefixText = this.prefix ? `[${this.prefix}] ` : '';
     const LEVEL = `   ${levelNames[level]}`.slice(-7);
     const stack = this.trace ? ` --- [${this.getCallTrace()}]` : '';
-    // 日志头
+    // Log header
     const header = `%c${prefixText}${time} ${LEVEL}${stack}:`;
-    // 样式
+    // Style
     const style = styles[level];
     return [header, style];
   }
 
   /**
-   * 输出日志
+   * Output log
    * @param level
    * @param message
    */
   private _log(level: LogLevel, args: any[]) {
     if (!this.isLog(level)) return;
     const [header, style] = this.getLogPrefix(level);
-    // 输出控制台
+    // Output console
     this._console(level, {
       header,
       style,
       args
     });
-    // 可扩展保存文件
+    // Can be extended to save files
     // ··· ···
   }
 
   /**
-   * 输出到控制台
+   * Output to console
    */
   private _console(level: LogLevel, data: LogData) {
     const { header, style, args } = data;
@@ -172,23 +173,23 @@ class Logger {
   }
 
   /**
-   * 记录到文件
+   * Record to file
    * @param level
    * @param data
    */
   private _printFile(level: LogLevel, data: LogData) {
-    // 记录到日志文件
+    // Record to log file
   }
 
   /**
-   * 格式化日期
-   * @param date {Date} 日期
-   * @param format {string} 格式化字符串
-   *   - y:年，M:月，d:日
-   *   - h:时(12)，H:时(24)，m:分，s:秒
-   *   - q:季度，a:上午|下午，A:AM|PM
-   *   - w:星期(EN)，W:星期(CN)
-   *   - 例：'yyyy-MM-dd W' = '1970-01-01 星期四'
+   * Format date
+   * @param date {Date} Date
+   * @param format {string} Format string
+   *   - y:year, M:month, d:day
+   *   - h:hour(12), H:hour(24), m:minute, s:second
+   *   - q:quarter, a:morning|afternoon, A:AM|PM
+   *   - w:week(EN), W:week(CN)
+   *   - Example: 'yyyy-MM-dd W' = '1970-01-01 Thursday'
    */
   private formatDate(date: Date, format: string = 'HH:mm') {
     const re = /(y+)/;
@@ -196,18 +197,18 @@ class Logger {
       const t = re.exec(format)![1];
       format = format.replace(t, (date.getFullYear() + '').substring(4 - t.length));
     }
-    const CW = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    const CW = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const EW = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const o: Record<string, number | string> = {
-      'M+': date.getMonth() + 1, // 月
-      'd+': date.getDate(), // 日
-      'h+': date.getHours() % 12 === 0 ? 12 : date.getHours() % 12, // 小时[12]
-      'H+': date.getHours(), // 小时[24]
-      'm+': date.getMinutes(), // 分
-      's+': date.getSeconds(), // 秒
-      'q+': Math.floor((date.getMonth() + 3) / 3), // 季度
-      'S+': date.getMilliseconds(), // 毫秒
-      a: date.getHours() < 12 ? '上午' : '下午', // 上午/下午
+      'M+': date.getMonth() + 1, // Month
+      'd+': date.getDate(), // Day
+      'h+': date.getHours() % 12 === 0 ? 12 : date.getHours() % 12, // Hour[12]
+      'H+': date.getHours(), // Hour[24]
+      'm+': date.getMinutes(), // Minute
+      's+': date.getSeconds(), // Second
+      'q+': Math.floor((date.getMonth() + 3) / 3), // Quarter
+      'S+': date.getMilliseconds(), // Millisecond
+      a: date.getHours() < 12 ? 'morning' : 'afternoon', // morning/afternoon
       A: date.getHours() < 12 ? 'AM' : 'PM', // AM/PM
       w: EW[date.getDay()],
       W: CW[date.getDay()]
@@ -223,7 +224,7 @@ class Logger {
   }
 
   /**
-   * 开发日志
+   * Development log
    * @param message
    */
   public debug(...message: any[]) {
@@ -231,7 +232,7 @@ class Logger {
   }
 
   /**
-   * 消息日志
+   * Message log
    * @param params
    */
   public info(...message: any[]) {
@@ -239,7 +240,7 @@ class Logger {
   }
 
   /**
-   * 警告日志
+   * Warning log
    * @param params
    */
   public warn(...message: any[]) {
@@ -247,7 +248,7 @@ class Logger {
   }
 
   /**
-   * 错误日志
+   * Error log
    * @param params
    */
   public error(...message: any[]) {
@@ -264,13 +265,13 @@ function test() {
 }
 
 /**
- * 输出标签
+ * Output tag
  * @param tip
  * @param link
  * @param color
  */
 export const printInfo = function (
-  tip: string = '抖音弹幕姬',
+  tip: string = 'Douyin Cast',
   link: string = 'https://github.com/skmcj/dycast',
   color: string = '#fe2c55'
 ) {

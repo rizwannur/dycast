@@ -41,22 +41,22 @@ interface ConnectInputProps {
   placeholder?: string;
   confirmText?: string;
   cancelText?: string;
-  testTime?: 'blur' | 'change'; // 验证时机
-  test?: (value: string) => TestRV; // 验证函数
+  testTime?: 'blur' | 'change'; // Validation timing
+  test?: (value: string) => TestRV; // Validation function
 }
 
 const props = withDefaults(defineProps<ConnectInputProps>(), {
-  confirmText: '连接',
-  cancelText: '断开',
+  confirmText: 'Connect',
+  cancelText: 'Disconnect',
   testTime: 'blur'
 });
-/** 输入框是否禁用 */
+/** Whether the input box is disabled */
 const inputDisabled = ref<boolean>(false);
-/** 按钮状态 */
+/** Button status */
 const btnDisabled = ref<boolean>(false);
-/** 连接状态 */
+/** Connection status */
 const connectStatus = ref<boolean>(false);
-/** 验证提示 */
+/** Validation tip */
 const testTip = ref<string | undefined>(void 0);
 /** event */
 const emits = defineEmits<{
@@ -67,29 +67,29 @@ const emits = defineEmits<{
   (e: 'change', event: Event): void;
 }>();
 
-/** 输入框值 */
+/** Input box value */
 const inputValue = defineModel<string>('value');
 /**
- * 按钮点击
+ * Button click
  */
 const handleClick = () => {
-  // 锁定输入
+  // Lock input
   inputDisabled.value = true;
   btnDisabled.value = true;
   if (connectStatus.value) {
-    // 取消
+    // Cancel
     emits('cancel', inputValue.value);
   } else {
-    // 确认
+    // Confirm
     emits('confirm', inputValue.value);
   }
 };
-// 处理验证
+// Handle validation
 const handleTest = debounce((value?: string) => {
   if (props.test) {
     const valid = props.test(value || '');
     if (valid.flag) {
-      // 验证通过
+      // Validation passed
       btnDisabled.value = false;
       testTip.value = void 0;
     } else {
@@ -112,26 +112,26 @@ const handleChange = (e: Event) => {
 };
 
 /**
- * 设置连接状态
+ * Set connection status
  * @param flag
  */
 const setStatus = function (flag?: boolean) {
   if (flag) {
-    // 连接成功
-    // 锁定输入框，防止再次输入
+    // Connection successful
+    // Lock the input box to prevent re-entry
     inputDisabled.value = true;
     connectStatus.value = true;
   } else {
-    // 连接失败
-    // 解锁输入框
+    // Connection failed
+    // Unlock the input box
     inputDisabled.value = false;
     connectStatus.value = false;
   }
-  // 还原按钮状态
+  // Restore button status
   btnDisabled.value = false;
 };
 
-/** 初始化数据 */
+/** Initialize data */
 const initData = function () {
   if (props.test) btnDisabled.value = true;
 };

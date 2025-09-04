@@ -26,38 +26,38 @@ interface LiveStatusPanelProps {
 const props = withDefaults(defineProps<LiveStatusPanelProps>(), {
   status: 0
 });
-// 计时器
+// Timer
 const counter = useTimeCounter();
-// 状态文本
-const text = ref('未连接');
+// Status text
+const text = ref('Not connected');
 
-// 监听状态变化
+// Listen for status changes
 watch(
   () => props.status,
   val => {
     switch (val) {
       case 0:
-        text.value = '未连接';
+        text.value = 'Not connected';
         counter.stop();
         break;
       case 1:
-        text.value = '连接中';
+        text.value = 'Connecting';
         counter.reset();
         counter.start();
         break;
       case 2:
-        text.value = '连接失败';
+        text.value = 'Connection failed';
         counter.stop();
         break;
       case 3:
-        text.value = '已断开';
+        text.value = 'Disconnected';
         counter.stop();
     }
   }
 );
 
 /**
- * 获取连接时长
+ * Get connection duration
  */
 const getDuration = function () {
   return counter.text.value;

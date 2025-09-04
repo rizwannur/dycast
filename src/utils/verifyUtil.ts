@@ -1,5 +1,5 @@
 /**
- * 验证房间号
+ * Verify room number
  * @param value
  * @returns
  */
@@ -9,7 +9,7 @@ export function verifyRoomNum(value: string) {
 }
 
 /**
- * 验证 wss 地址
+ * Verify wss address
  * @param value
  * @returns
  */

@@ -29,37 +29,37 @@ import { getSignature } from './signature';
 import { logUserCast } from '@/utils/debugUtil';
 
 /**
- * 连接状态
- *  - 0 - 未连接
- *  - 1 - 连接中(连接完成)
- *  - 2 - 连接失败
- *  - 3 - 已断开
+ * Connection status
+ *  - 0 - Not connected
+ *  - 1 - Connecting (connection complete)
+ *  - 2 - Connection failed
+ *  - 3 - Disconnected
  */
 export type ConnectStatus = 0 | 1 | 2 | 3;
 
-/** 直播间信息 */
+/** Live room information */
 export interface LiveRoom {
   /**
-   * 在线观众数
+   * Number of online viewers
    */
   audienceCount?: number | string;
   /**
-   * 本场点赞数
+   * Number of likes in this session
    */
   likeCount?: number | string;
   /**
-   * 主播粉丝数
+   * Number of anchor's fans
    */
   followCount?: number | string;
   /**
-   * 累计观看人数
+   * Cumulative number of viewers
    */
   totalUserCount?: number | string;
-  /** 房间状态 */
+  /** Room status */
   status?: number;
 }
 
-/** 直播间信息-连接信息 */
+/** Live room information - connection information */
 export interface DyLiveInfo {
   roomNum?: string;
   roomId: string;
@@ -70,7 +70,7 @@ export interface DyLiveInfo {
   title: string;
   status: number;
 }
-/** 直播间信息-初次连接信息 */
+/** Live room information - initial connection information */
 export interface DyImInfo {
   cursor?: string;
   fetchInterval?: string;
@@ -82,7 +82,7 @@ export interface DyImInfo {
 }
 
 /**
- * 送礼点赞榜
+ * Gift and like ranking
  */
 export interface LiveRankItem {
   nickname: string;
@@ -97,30 +97,30 @@ export interface CastUser {
   name?: string;
   // user.avatar_thumb.url_list.0
   avatar?: string;
-  // 性别 0 | 1 | 2 => 未知 | 男 | 女
+  // Gender 0 | 1 | 2 => Unknown | Male | Female
   gender?: number;
 }
 
 export interface CastGift {
   id?: string;
   name?: string;
-  // 抖音币 diamond_count
+  // Douyin coin diamond_count
   price?: number;
   type?: number;
-  // 描述
+  // Description
   desc?: string;
-  // 图片
+  // Image
   icon?: string;
-  // 数量 repeat_count | combo_count
+  // Quantity repeat_count | combo_count
   count?: number | string;
-  // 礼物消息可能重复发送，0 表示第一次，未重复
+  // Gift messages may be sent repeatedly, 0 means the first time, not repeated
   repeatEnd?: number;
 }
 
 /**
- * 富文本类型
- *  1 - 普通文本
- *  2 - 合并表情
+ * Rich text type
+ *  1 - Plain text
+ *  2 - Combined emoji
  */
 export enum CastRtfContentType {
   TEXT = 1,
@@ -128,7 +128,7 @@ export enum CastRtfContentType {
   USER = 3
 }
 
-// 富文本
+// Rich text
 export interface CastRtfContent {
   type?: CastRtfContentType;
   text?: string;
@@ -160,12 +160,12 @@ export enum CastMethod {
   EMOJI_CHAT = 'WebcastEmojiChatMessage',
   FANSCLUB = 'WebcastFansclubMessage',
   ROOM_DATA_SYNC = 'WebcastRoomDataSyncMessage',
-  /** 自定义消息 */
+  /** Custom message */
   CUSTOM = 'CustomMessage'
 }
 
 /**
- * 直播间直播状态
+ * Live room status
  */
 export enum RoomStatus {
   PREPARE = 1,
@@ -173,17 +173,17 @@ export enum RoomStatus {
   PAUSE = 3,
   END = 4
 }
-/** 客户端状态 */
+/** Client status */
 enum WSRoomStatus {
-  /** 未连接 */
+  /** Not connected */
   UNCONNECTED = 1,
-  /** 正在连接 */
+  /** Connecting */
   CONNECTING = 2,
-  /** 连接中|已连接 */
+  /** Connecting | Connected */
   CONNECTED = 3,
-  /** 重连中 */
+  /** Reconnecting */
   RECONNECTING = 4,
-  /** 已关闭 */
+  /** Closed */
   CLOSED = 5
 }
 
@@ -192,64 +192,64 @@ enum WSRoomStatus {
  */
 interface DyCastEvent extends EventMap {
   /**
-   * 监听ws打开
+   * Listen for ws open
    * @param ev
    * @returns
    */
   open: (ev?: Event, info?: DyLiveInfo) => void;
   /**
-   * 监听关闭
+   * Listen for close
    * @param code
    * @param reason
    * @returns
    */
   close: (code: number, reason: string) => void;
   /**
-   * 监听错误
+   * Listen for error
    * @param e
    * @returns
    */
   error: (e: Error) => void;
   /**
-   * 监听弹幕
+   * Listen for barrage
    * @param messages
    * @returns
    */
   message: (messages: DyMessage[]) => void;
-  /** 重连中 */
+  /** Reconnecting */
   reconnecting: (count?: number, code?: DyCastCloseCode, reason?: string) => void;
-  /** 重连完成 */
+  /** Reconnection complete */
   reconnect: (ev?: Event) => void;
 }
 
 /**
- * 自定义关闭码
+ * Custom close code
  */
 export enum DyCastCloseCode {
-  /** 正常关闭 */
+  /** Normal closure */
   NORMAL = 1000,
-  /** 终端离开，可能因为服务端错误，也可能因为浏览器正从打开连接的页面跳转离开 */
+  /** The endpoint is going away, possibly due to a server error or the browser navigating away from the page */
   GOING_AWAY = 1001,
-  /** 由于协议错误而中断连接 */
+  /** The connection is terminated due to a protocol error */
   PROTOCOL_ERROR = 1002,
-  /** 接收到不允许的数据类型而断开连接 */
+  /** The connection is terminated because an unacceptable data type was received */
   UNSUPPORTED = 1003,
-  /** 没有收到预期的状态码 */
+  /** No status code was received */
   NO_STATUS = 1005,
-  /** 没有处理关闭帧 */
+  /** No close frame was handled */
   ABNORMAL = 1006,
-  /** 应用自定义状态码 */
-  /** 主播未开播 */
+  /** Application custom status code */
+  /** The host has not started broadcasting */
   LIVE_END = 4001,
-  /** 连接过程错误 */
+  /** Connection process error */
   CONNECTING_ERROR = 4002,
-  /** 无法正常接收信息 */
+  /** Unable to receive information normally */
   CANNOT_RECEIVE = 4003,
-  /** 因重连关闭 */
+  /** Closed due to reconnection */
   RECONNECTING = 4004
 }
 
-// 配置
+// Configuration
 interface DyCastOptions {
   aid?: string;
   app_name?: string;
@@ -292,14 +292,14 @@ interface DyCastCursor {
 }
 
 /**
- * dycast 自定义关闭信息
+ * dycast custom close message
  */
 interface DyCastCloseEvent {
   code: number;
   msg: string;
 }
 
-// 消息体类型
+// Message body type
 enum PayloadType {
   Ack = 'ack',
   Close = 'close',
@@ -311,11 +311,11 @@ enum PayloadType {
 // const BASE_URL = 'wss://webcast5-ws-web-lf.douyin.com/webcast/im/push/v2/';
 const BASE_URL = `${location.origin.replace(/^http/, 'ws')}/socket/webcast/im/push/v2/`;
 
-/** SDK 版本 */
+/** SDK version */
 const VERSION = '1.0.14-beta.0';
 
 /**
- * 默认配置
+ * Default configuration
  */
 const defaultOpts: Partial<DyCastOptions> = {
   aid: '6383',
@@ -349,74 +349,74 @@ const defaultOpts: Partial<DyCastOptions> = {
 };
 
 export class DyCast {
-  /** 房间号 */
+  /** Room number */
   private roomNum: string;
 
-  /** 房间信息 */
+  /** Room information */
   private info: DyLiveInfo;
 
-  // 初次连接信息
+  // Initial connection information
   private imInfo: DyImInfo;
 
-  /** WS客户端 */
+  /** WS client */
   private ws: WebSocket | undefined;
 
-  /** 连接 url */
+  /** Connection url */
   private url: string | undefined;
 
-  // 连接状态
+  // Connection status
   private state: boolean;
 
-  /** 客户端状态 */
+  /** Client status */
   private wsRoomStatus: WSRoomStatus;
 
-  /** 直播间直播状态 */
+  /** Live room status */
   private status: RoomStatus;
 
-  /** 连接配置 */
+  /** Connection configuration */
   private options: DyCastOptions | undefined;
 
-  // 心跳
-  // 主要用于检查消息接收是否正常
+  // Heartbeat
+  // Mainly used to check whether message reception is normal
   private heartbeatDuration: number = 10000;
-  // 心跳次数
+  // Number of heartbeats
   private pingCount: number = 0;
-  // 心跳阈值
-  // 如果 heartbeatDuration ms 内心跳次数大于等于该值，证明消息接收出错
-  // 即 如果 10000 ms 内都没接收到新消息，证明消息接收出错
+  // Heartbeat threshold
+  // If the number of heartbeats within heartbeatDuration ms is greater than or equal to this value, it proves that the message reception is wrong
+  // That is, if no new message is received within 10000 ms, it proves that the message reception is wrong
   private downgradePingCount: number = 2;
 
   private pingTimer: number | undefined = void 0;
 
-  // 上次接收时间
+  // Last reception time
   private lastReceiveTime: number;
 
   private cursor: DyCastCursor;
 
   /**
-   * 自定义实现的 错误信息提示
-   *  - 由于 dycast 的服务端并不会正确处理关闭帧
-   *  - 调用 websocket close 后，关闭监听返回 1006
+   * Custom implemented error message prompt
+   *  - Because the dycast server does not handle close frames correctly
+   *  - After calling websocket close, the close listener returns 1006
    */
   private closeEvent: DyCastCloseEvent;
 
-  /** 当前重连次数 */
+  /** Current number of reconnections */
   private reconnectCount: number;
-  /** 最大重连尝试次数 */
+  /** Maximum number of reconnection attempts */
   private maxReconnectCount: number;
-  // 是否需要重连
+  // Whether to reconnect
   private shouldReconnect: boolean;
-  // 正在重连中
+  // Reconnecting
   private isReconnecting: boolean;
 
-  // 订阅者
+  // Subscriber
   private emitter: Emitter<DyCastEvent>;
 
   constructor(roomNum: string) {
-    // 初始化
+    // Initialization
     this.roomNum = roomNum;
     this.state = !1;
-    // 10秒心跳
+    // 10 second heartbeat
     this.heartbeatDuration = 10000;
     this.pingCount = 0;
     this.downgradePingCount = 2;
@@ -425,18 +425,18 @@ export class DyCast {
       firstCursor: '',
       internalExt: ''
     };
-    // 当前重连次数
+    // Current number of reconnections
     this.reconnectCount = 0;
-    // 最大重连次数
+    // Maximum number of reconnections
     this.maxReconnectCount = 3;
-    // 上一次接收消息时间
+    // Last time a message was received
     this.lastReceiveTime = Date.now();
-    // 当前客户端状态
+    // Current client status
     this.wsRoomStatus = WSRoomStatus.UNCONNECTED;
     this.shouldReconnect = !1;
     /**
-     * 默认情况
-     *  - 即未收到预期的状态码
+     * Default case
+     *  - That is, the expected status code was not received
      */
     this.closeEvent = { code: 1005, msg: 'CLOSE_NO_STATUS' };
     this.info = {
@@ -455,7 +455,7 @@ export class DyCast {
   }
 
   /**
-   * 监听
+   * Listen
    * @param event
    * @param listener
    */
@@ -464,7 +464,7 @@ export class DyCast {
   }
 
   /**
-   * 取消监听
+   * Cancel listening
    * @param event
    * @param listener
    */
@@ -473,8 +473,8 @@ export class DyCast {
   }
 
   /**
-   * 一次性监听
-   *  - 如监听打开关闭
+   * One-time listening
+   *  - Such as listening for open and close
    * @param event
    * @param listener
    */
@@ -483,51 +483,51 @@ export class DyCast {
   }
 
   /**
-   * 连接
+   * Connect
    * @returns
    */
   public async connect() {
     try {
       if (this.state) {
-        this.emitter.emit('error', Error('已连接，请勿重复连接'));
+        this.emitter.emit('error', Error('Already connected, please do not connect again'));
         return;
       }
       await this.fetchConnectInfo(this.roomNum);
       const params = this.getWssParam();
       if (this.isLiving()) {
-        // 连接中
+        // Connecting
         this.wsRoomStatus = WSRoomStatus.CONNECTING;
         this._connect(params);
       } else {
-        // 主播未开播
+        // The host has not started broadcasting
         const liveStatus = this.getLiveStatus();
         this.wsRoomStatus = WSRoomStatus.CLOSED;
         this.emitter.emit('close', DyCastCloseCode.LIVE_END, liveStatus.msg);
       }
     } catch (err) {
-      // 过程错误
-      CLog.error('房间连接前错误 =>', err);
-      // 关闭
-      this.emitter.emit('close', DyCastCloseCode.CONNECTING_ERROR, '房间连接前出错');
+      // Process error
+      CLog.error('Error before room connection =>', err);
+      // Close
+      this.emitter.emit('close', DyCastCloseCode.CONNECTING_ERROR, 'Error before room connection');
       this._afterClose();
-      // 报错
+      // Report error
       this.emitter.emit('error', err as Error);
     }
   }
 
   /**
-   * 获取当前连接状态
+   * Get current connection status
    */
   public getRoomStatus() {
     return this.wsRoomStatus;
   }
 
   /**
-   * 实际连接逻辑
+   * Actual connection logic
    * @param opts
    */
   private _connect(opts: DyCastOptions) {
-    // 连接前的初始化
+    // Initialization before connection
     this.options = opts;
     this.url = this._getSocketUrl(opts);
     this.cursor = {
@@ -541,13 +541,13 @@ export class DyCast {
       this.ws = new WebSocket(this.url);
       this.ws.binaryType = 'arraybuffer';
       this.ws.addEventListener('open', (ev: Event) => {
-        // 可能初次打开，也可能是重连打开
+        // May be the first time to open, or it may be a reconnection to open
         if (this.reconnectCount > 0) {
-          // 重连成功
+          // Reconnection successful
           this.reconnectCount = 0;
           this.emitter.emit('reconnect', ev);
         } else {
-          // 初次连接
+          // First connection
           this.emitter.emit('open', ev, this.info);
         }
         this.ping();
@@ -563,17 +563,17 @@ export class DyCast {
         this.handleMessage(ev.data);
       });
     } catch (err) {
-      CLog.error('房间连接过程错误 =>', err);
-      // 可能原因为 WebSocket 不可用
-      // 关闭
-      this.emitter.emit('close', DyCastCloseCode.CONNECTING_ERROR, '房间连接过程出错');
+      CLog.error('Error during room connection process =>', err);
+      // Possible reason is that WebSocket is not available
+      // Close
+      this.emitter.emit('close', DyCastCloseCode.CONNECTING_ERROR, 'Error during room connection process');
       this._afterClose();
-      // 报错
+      // Report error
       this.emitter.emit('error', err as Error);
     }
   }
 
-  /** 处理关闭 */
+  /** Handle close */
   private handleClose(ev: CloseEvent) {
     let { code, reason } = ev;
     let msg: string = reason.toString();
@@ -586,16 +586,16 @@ export class DyCast {
     }
     this._afterClose();
     if (this.shouldReconnect || this.reconnectCount > 0) {
-      // 需要重连
+      // Need to reconnect
       this.reconnect();
     } else {
-      // 正常关闭
+      // Normal closure
       this.emitter.emit('close', code, msg);
     }
   }
 
   /**
-   * 处理消息
+   * Handle message
    */
   private async handleMessage(data: ArrayBuffer) {
     this.pingCount = 0;
@@ -609,38 +609,38 @@ export class DyCast {
     if (!res) return;
     const { response, frame, cursor, needAck, internalExt } = res;
     if (needAck) {
-      // 发送 ack
+      // Send ack
       const ack = this._ack(internalExt, frame?.logId);
       this.setCursor(cursor, internalExt);
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(ack);
       } else {
-        // 重连
-        CLog.error(`ACK发送异常 => 直播间[${this.roomNum}]已关闭`);
+        // Reconnect
+        CLog.error(`ACK sending exception => Live room [${this.roomNum}] has been closed`);
         this._afterClose();
         // this.reconnect();
       }
     }
-    // 处理消息体
+    // Handle message body
     if (frame) {
-      // 判断消息体类型
+      // Judge the message body type
       if (frame.payloadType === PayloadType.Msg) {
         this._dealMessages(response.messages);
       }
       if (frame.payloadType === PayloadType.Close) {
-        // 关闭连接
+        // Close connection
         this.close(DyCastCloseCode.NORMAL, 'Close By PayloadType');
       }
     }
   }
 
   /**
-   * 重连
+   * Reconnect
    */
   private reconnect() {
-    // 还未关闭
+    // Not closed yet
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.close(DyCastCloseCode.RECONNECTING, '因重连而关闭');
+      this.close(DyCastCloseCode.RECONNECTING, 'Closed due to reconnection');
     }
     this.shouldReconnect = !1;
     const opts: DyCastOptions = Object.assign({}, this.options, {
@@ -649,8 +649,8 @@ export class DyCast {
     });
     this.reconnectCount++;
     if (this.reconnectCount > this.maxReconnectCount) {
-      CLog.error('已超过最大重连次数，请稍后重试');
-      this.emitter.emit('error', Error('已超过最大重连次数，请稍后重试'));
+      CLog.error('The maximum number of reconnections has been exceeded, please try again later');
+      this.emitter.emit('error', Error('The maximum number of reconnections has been exceeded, please try again later'));
       return;
     }
     this.wsRoomStatus = WSRoomStatus.RECONNECTING;
@@ -660,59 +660,59 @@ export class DyCast {
   }
 
   /**
-   * 关闭
+   * Close
    */
   public close(code: number = 1005, reason: string = 'close') {
     if (this.ws) {
       this.state = !1;
       this.closeEvent = { code, msg: reason };
-      // 无需传 code，因为抖音弹幕ws服务端并不会处理关闭帧
+      // No need to pass code, because the Douyin barrage ws server will not handle close frames
       this.ws.close();
       this.ws = void 0;
     }
   }
 
   /**
-   * 发送心跳帧
+   * Send heartbeat frame
    */
   private ping() {
     try {
       let dur = Math.max(10000, Number(this.heartbeatDuration));
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        // 连接正常
-        // 发送心跳 => hb
+        // Connection is normal
+        // Send heartbeat => hb
         this.ws.send(this._ping());
         this.pingCount++;
         if (this.pingCount >= this.downgradePingCount) {
           return this.cannotReceiveMessage();
         }
       }
-      // 心跳：大概每 10 秒发送一次
+      // Heartbeat: send about once every 10 seconds
       this.pingTimer = setTimeout(() => {
         this.state && this.ping();
       }, dur);
     } catch (err) {
-      // 发送过程出错
+      // Error during sending process
       CLog.error('DyCast Ping Error =>', err);
     }
   }
 
   /**
-   * 无法正常接收消息
-   *  - 长时间未接收到消息
+   * Unable to receive messages normally
+   *  - No message received for a long time
    */
   private cannotReceiveMessage() {
-    // 先关闭
-    this.close(DyCastCloseCode.CANNOT_RECEIVE, '客户端无法正常接收信息');
+    // Close first
+    this.close(DyCastCloseCode.CANNOT_RECEIVE, 'The client cannot receive information normally');
     let tmp = Date.now() - this.lastReceiveTime;
     CLog.error(`DyCast Cannot Receive Message => after ${tmp} ms`);
-    // 重连
-    this.emitter.emit('reconnecting', this.reconnectCount, DyCastCloseCode.CANNOT_RECEIVE, '客户端无法正常接收信息');
+    // Reconnect
+    this.emitter.emit('reconnecting', this.reconnectCount, DyCastCloseCode.CANNOT_RECEIVE, 'The client cannot receive information normally');
     this.reconnectCount < this.maxReconnectCount && (this.shouldReconnect = !0);
   }
 
   /**
-   * 设置 cursor
+   * Set cursor
    * @param cur
    * @param ext
    */
@@ -725,7 +725,7 @@ export class DyCast {
   }
 
   /**
-   * 处理一次接收的消息集
+   * Process a set of received messages
    */
   private async _dealMessages(msgs?: Message[]) {
     if (!msgs || msgs.length < 1) return;
@@ -741,7 +741,7 @@ export class DyCast {
   }
 
   /**
-   * 处理一条消息
+   * Process a single message
    * @param msg
    */
   private async _dealMessage(msg: Message) {
@@ -752,14 +752,14 @@ export class DyCast {
     let payload = msg.payload;
     if (!payload) return null;
     try {
-      // 处理消息
+      // Process message
       switch (method) {
         case CastMethod.CHAT:
           message = decodeChatMessage(payload);
           data.method = CastMethod.CHAT;
           data.user = this._getCastUser(message.user);
           data.content = message.content;
-          // 获取富文本：包含合并表情
+          // Get rich text: including combined emojis
           data.rtfContent = this._getCastRtfContent(message.rtfContentV2);
           break;
         case CastMethod.GIFT:
@@ -772,21 +772,21 @@ export class DyCast {
           message = decodeLikeMessage(payload);
           data.method = CastMethod.LIKE;
           data.user = this._getCastUser(message.user);
-          data.content = `为主播点赞了(${message.count})`;
+          data.content = `Liked the host (${message.count})`;
           data.room = { likeCount: message.total };
           break;
         case CastMethod.MEMBER:
           message = decodeMemberMessage(payload);
           data.method = CastMethod.MEMBER;
           data.user = this._getCastUser(message.user);
-          data.content = '进入直播间';
+          data.content = 'Entered the live room';
           data.room = { audienceCount: message.memberCount };
           break;
         case CastMethod.SOCIAL:
           message = decodeSocialMessage(payload);
           data.method = CastMethod.SOCIAL;
           data.user = this._getCastUser(message.user);
-          data.content = '关注了主播';
+          data.content = 'Followed the host';
           data.room = { followCount: message.followCount };
           break;
         case CastMethod.EMOJI_CHAT:
@@ -827,7 +827,7 @@ export class DyCast {
   }
 
   /**
-   * 获取当前的送礼榜单
+   * Get the current gift list
    * @param data
    */
   private _getCastRanksA(data?: RoomUserSeqMessage_Contributor[]): LiveRankItem[] | undefined {
@@ -845,7 +845,7 @@ export class DyCast {
   }
 
   /**
-   * 获取当前的送礼榜单
+   * Get the current gift list
    * @param data
    */
   private _getCastRanksB(data?: RoomRankMessage_RoomRank[]): LiveRankItem[] | undefined {
@@ -863,7 +863,7 @@ export class DyCast {
   }
 
   /**
-   * 获取弹幕用户
+   * Get barrage user
    * @param data
    * @returns
    */
@@ -878,7 +878,7 @@ export class DyCast {
   }
 
   /**
-   * 获取弹幕礼物
+   * Get barrage gift
    * @param data
    * @returns
    */
@@ -897,7 +897,7 @@ export class DyCast {
   }
 
   /**
-   * 获取会员表情
+   * Get member emoji
    * @param data
    * @returns
    */
@@ -907,7 +907,7 @@ export class DyCast {
   }
 
   /**
-   * 获取弹幕富文本内容
+   * Get barrage rich text content
    * @param data
    * @returns
    */
@@ -917,14 +917,14 @@ export class DyCast {
     const pieces = data.pieces;
     const list: CastRtfContent[] = [];
     /**
-     * pieces 类型
-     *  - type = 1  : 普通的聊天文本 : 关键字段(stringValue)
-     *  - type = 11 : @ 用户 : 关键字段(userValue.user)
-     *  - type = 15 : 合成表情 : 关键字段(imageValue)
+     * pieces type
+     *  - type = 1  : Normal chat text : Key field (stringValue)
+     *  - type = 11 : @ User : Key field (userValue.user)
+     *  - type = 15 : Combined emoji : Key field (imageValue)
      */
     for (let i = 0; i < pieces.length; i++) {
       if (pieces[i].imageValue) {
-        // 合成表情
+        // Combined emoji
         let url = pieces[i].imageValue?.image?.urlList?.[0];
         let name = pieces[i].imageValue?.image?.content?.name;
         list.push({
@@ -933,7 +933,7 @@ export class DyCast {
           url
         });
       } else if (pieces[i].userValue) {
-        // 艾特用户
+        // At user
         let toUser = pieces[i].userValue?.user;
         list.push({
           type: CastRtfContentType.USER,
@@ -941,8 +941,8 @@ export class DyCast {
           user: this._getCastUser(toUser)
         });
       } else {
-        // 假定为普通文本类型
-        // 实际还可能是 giftValue 之类的
+        // Assume it is plain text type
+        // It may also be giftValue or something else
         list.push({
           type: CastRtfContentType.TEXT,
           text: pieces[i].stringValue || ''
@@ -953,7 +953,7 @@ export class DyCast {
   }
 
   /**
-   * 处理接收的二进制消息
+   * Process received binary messages
    * @param data
    */
   private async _decodeFrame(data: Uint8Array) {
@@ -988,7 +988,7 @@ export class DyCast {
     };
   }
 
-  /** 心跳数据 */
+  /** Heartbeat data */
   private _ping() {
     return encodePushFrame({
       payloadType: PayloadType.Hb
@@ -996,7 +996,7 @@ export class DyCast {
   }
 
   /**
-   * Ack 数据
+   * Ack data
    * @param ext Frame im-internal_ext | Response internalExt
    * @param logId
    */
@@ -1021,7 +1021,7 @@ export class DyCast {
     });
   }
 
-  /** 关闭后 */
+  /** After closing */
   private _afterClose() {
     this.state = !1;
     if (this.pingTimer) {
@@ -1039,7 +1039,7 @@ export class DyCast {
     this.isReconnecting = false;
   }
 
-  /** 打开后 */
+  /** After opening */
   private _afterOpen() {
     this.state = !0;
     this.wsRoomStatus = WSRoomStatus.CONNECTED;
@@ -1048,7 +1048,7 @@ export class DyCast {
   }
 
   /**
-   * 获取完整的 wss 地址
+   * Get the full wss address
    * @param opts
    * @returns
    */
@@ -1058,8 +1058,8 @@ export class DyCast {
   }
 
   /**
-   * 将配置转换为 url 参数字符串
-   *  - 如：item1=value1&item2=value2&...
+   * Convert the configuration to a url parameter string
+   *  - Such as: item1=value1&item2=value2&...
    * @param opts
    * @returns
    */
@@ -1071,7 +1071,7 @@ export class DyCast {
   }
 
   /**
-   * 获取连接信息
+   * Get connection information
    * @param roomNum
    * @returns
    */
@@ -1089,7 +1089,7 @@ export class DyCast {
   }
 
   /**
-   * 整理连接参数对象
+   * Organize the connection parameter object
    */
   private getWssParam(): DyCastOptions {
     const { roomId, uniqueId } = this.info;
@@ -1104,37 +1104,37 @@ export class DyCast {
   }
 
   /**
-   * 是否已经直播
+   * Whether it is live
    */
   private isLiving() {
     return this.status === RoomStatus.LIVING;
   }
 
-  /** 获取直播状态 */
+  /** Get live status */
   private getLiveStatus() {
     let type = 'Unknown';
     let code = 0;
-    let msg = '未知状态';
+    let msg = 'Unknown status';
     switch (this.status) {
       case RoomStatus.PREPARE:
         type = 'PREPARE';
         code = RoomStatus.PREPARE;
-        msg = '主播正在准备中';
+        msg = 'The host is preparing';
         break;
       case RoomStatus.LIVING:
         type = 'LIVING';
         code = RoomStatus.LIVING;
-        msg = '主播正在直播中';
+        msg = 'The host is live';
         break;
       case RoomStatus.PAUSE:
         type = 'PAUSE';
         code = RoomStatus.PAUSE;
-        msg = '主播暂时离开了';
+        msg = 'The host has left temporarily';
         break;
       case RoomStatus.END:
         type = 'END';
         code = RoomStatus.END;
-        msg = '主播已下播';
+        msg = 'The host has gone offline';
         break;
     }
     return {
@@ -1145,7 +1145,7 @@ export class DyCast {
   }
 
   /**
-   * 获取直播间信息
+   * Get live room information
    */
   public getLiveInfo(): DyLiveInfo {
     return {

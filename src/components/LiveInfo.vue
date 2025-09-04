@@ -1,7 +1,7 @@
 <template>
-  <!-- 直播间信息 -->
+  <!-- Live room information -->
   <div class="live-info">
-    <!-- 封面 -->
+    <!-- Cover -->
     <div class="live-info-cover">
       <div
         :class="{
@@ -11,18 +11,18 @@
           loaded: coverLoadingStatus === 2,
           unload: coverLoadingStatus === 0
         }">
-        <img :src="cover" alt="封面" @load="handleCoverLoaded" @error="handleCoverError" />
+        <img :src="cover" alt="Cover" @load="handleCoverLoaded" @error="handleCoverError" />
         <span>{{ coverLoadingTip }}</span>
       </div>
       <label class="live-info-title">{{ title }}</label>
     </div>
-    <!-- 信息 -->
+    <!-- Information -->
     <div class="live-info-list">
-      <LiveInfoItem title="主播" :cover="avatar" :text="nickname" />
-      <LiveInfoItem title="主播粉丝数" :text="followCount" />
-      <LiveInfoItem title="在线观众数" :text="memberCount" />
-      <LiveInfoItem title="累计观看人数" :text="userCount" />
-      <LiveInfoItem title="本场点赞数" :text="likeCount" />
+      <LiveInfoItem title="Host" :cover="avatar" :text="nickname" />
+      <LiveInfoItem title="Host's fans" :text="followCount" />
+      <LiveInfoItem title="Online viewers" :text="memberCount" />
+      <LiveInfoItem title="Cumulative viewers" :text="userCount" />
+      <LiveInfoItem title="Likes in this session" :text="likeCount" />
     </div>
   </div>
 </template>
@@ -43,7 +43,7 @@ interface LiveInfoProps {
 }
 
 const props = withDefaults(defineProps<LiveInfoProps>(), {
-  title: '直播间标题',
+  title: 'Live room title',
   nickname: '***',
   followCount: '*****',
   memberCount: '*****',
@@ -51,21 +51,21 @@ const props = withDefaults(defineProps<LiveInfoProps>(), {
   likeCount: '*****'
 });
 
-// 封面加载状态
-// 尚未设置|加载中|加载完成|加载失败
+// Cover loading status
+// Not set | Loading | Loaded | Failed to load
 const coverLoadingStatus = ref<0 | 1 | 2 | 3>(0);
 
 const coverLoadingTip = computed(() => {
   let tip: string = '';
   switch (coverLoadingStatus.value) {
     case 0:
-      tip = '暂无封面';
+      tip = 'No cover';
       break;
     case 1:
-      tip = '加载中···';
+      tip = 'Loading...';
       break;
     case 3:
-      tip = '加载失败';
+      tip = 'Failed to load';
       break;
   }
   return tip;
@@ -75,11 +75,11 @@ onBeforeMount(() => {
   if (props.cover) coverLoadingStatus.value = 1;
 });
 
-/** 图片加载完成 */
+/** Image loaded successfully */
 const handleCoverLoaded = function () {
   if (props.cover) coverLoadingStatus.value = 2;
 };
-/** 图片加载失败 */
+/** Image failed to load */
 const handleCoverError = function () {
   if (props.cover) coverLoadingStatus.value = 3;
 };

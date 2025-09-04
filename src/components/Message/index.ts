@@ -29,17 +29,17 @@ export type SkMessageNormalOptions = Omit<SkMessageProps, 'id'> & {
   appendTo: HTMLElement;
 };
 
-// 计数
+// Count
 let seed = 1;
 
-// 创建消息
+// Create message
 const createMessage = function ({ appendTo, ...options }: SkMessageNormalOptions, context?: AppContext | null) {
   const id = `message_${seed++}`;
-  // 用户的关闭回调
+  // User's close callback
   const handleUserClose = options.onClose;
-  // 渲染容器
+  // Render container
   const container = document.createElement('div');
-  // 组件属性
+  // Component properties
   const props = {
     ...options,
     id,
@@ -51,7 +51,7 @@ const createMessage = function ({ appendTo, ...options }: SkMessageNormalOptions
       render(null, container);
     }
   };
-  // vue 节点 VNode
+  // vue node VNode
   const vnode = createVNode(
     MessageConstructor,
     props,
@@ -61,22 +61,22 @@ const createMessage = function ({ appendTo, ...options }: SkMessageNormalOptions
         }
       : null
   );
-  // 节点上下文
+  // Node context
   vnode.appContext = context || message._context;
-  // 开始渲染
+  // Start rendering
   render(vnode, container);
-  // 插入页面
+  // Insert into page
   appendTo.appendChild(container.firstElementChild!);
-  // 虚拟节点
+  // Virtual node
   const vm = vnode.component!;
-  // 处理函数
+  // Handler function
   const handler: SkMessageHandler = {
-    // 关闭
+    // Close
     close: () => {
       vm.exposed!.close();
     }
   };
-  // 实例对象
+  // Instance object
   const instance: SkMessageContext = {
     id,
     vnode,
@@ -88,19 +88,19 @@ const createMessage = function ({ appendTo, ...options }: SkMessageNormalOptions
   return instance;
 };
 
-// 关闭消息
+// Close message
 const closeMessage = function (instance: SkMessageContext) {
-  // 获取当前实例索引
+  // Get current instance index
   const idx = instances.indexOf(instance);
   if (idx === -1) return;
-  // 从集合中移除
+  // Remove from collection
   instances.splice(idx, 1);
-  // 获取实例处理对象
+  // Get instance handler object
   const { handler } = instance;
-  // 调用关闭函数
+  // Call close function
   handler.close();
 };
-// 关闭索引同类组件
+// Close components of the same type
 const closeAll = function (type?: SKMessageTypes) {
   const instancesToClose = [...instances];
 
@@ -111,7 +111,7 @@ const closeAll = function (type?: SKMessageTypes) {
   }
 };
 
-// 规范配置
+// Normalize options
 const normalizeOptions = function (params: SkMessageParams) {
   const options: SkMessageOptions =
     !params || isString(params) || isVNode(params) || isFunction(params) ? { message: params } : params;
@@ -129,21 +129,21 @@ const normalizeOptions = function (params: SkMessageParams) {
   }
   return normalized as SkMessageNormalOptions;
 };
-// 主接口
+// Main interface
 const message: SkMessageFn & Partial<SkMessage> & { _context: AppContext | null } = function (
   options = {},
   context = null
 ) {
-  // 规范话配置
+  // Normalize options
   const normalized = normalizeOptions(options);
-  // 创建实例
+  // Create instance
   const instance = createMessage(normalized, context);
-  // 加入集合
+  // Add to collection
   instances.push(instance);
-  // 返回处理函数
+  // Return handler function
   return instance.handler;
 };
-// 绑定类型函数
+// Bind type function
 skMessageTypes.forEach(type => {
   message[type] = (options = {}, appContext) => {
     const normalized = normalizeOptions(options);
@@ -155,6 +155,6 @@ message.closeAll = closeAll;
 message._context = null;
 
 /**
- * 消息组件
+ * Message component
  */
 export default message as SkMessage;

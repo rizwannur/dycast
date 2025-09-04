@@ -17,7 +17,7 @@
         <span v-if="item.node === 'text'" class="text">{{ item.text }}</span>
         <span v-if="item.node === 'user'" class="touser">{{ item.text }}</span>
         <img v-if="item.node === 'icon'" class="icon" :title="item.text" :src="item.url" :alt="item.text" />
-        <img v-if="item.node === 'emoji'" class="emoji" alt="会员表情" :src="item.url" />
+        <img v-if="item.node === 'emoji'" class="emoji" alt="Member expression" :src="item.url" />
       </template>
     </p>
   </div>
@@ -45,7 +45,7 @@ interface CastItemProps {
 const props = withDefaults(defineProps<CastItemProps>(), {});
 
 /**
- * 创建普通内容
+ * Create plain text content
  * @param content
  * @returns
  */
@@ -69,7 +69,7 @@ const createTextContent = function (content?: string): CastContentDOM[] {
 };
 
 /**
- * 创建富文本内容
+ * Create rich text content
  * @param content
  * @returns
  */
@@ -112,7 +112,7 @@ const doms = computed(() => {
         list = [
           {
             node: 'text',
-            text: '送出了'
+            text: 'sent'
           },
           {
             node: 'icon',
@@ -128,7 +128,7 @@ const doms = computed(() => {
         list = [
           {
             node: 'text',
-            text: '送出了礼物'
+            text: 'sent a gift'
           }
         ];
       }
@@ -137,7 +137,7 @@ const doms = computed(() => {
       list = [
         {
           node: 'emoji',
-          text: '会员表情',
+          text: 'Member expression',
           url: props.content
         }
       ];

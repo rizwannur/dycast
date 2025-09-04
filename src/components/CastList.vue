@@ -9,15 +9,15 @@
       'theme-dark': theme === 'dark'
     }">
     <div class="cast-list-header">
-      <!-- MAC 前缀 -->
+      <!-- MAC prefix -->
       <div class="mac-prefix">
         <div class="cir red"></div>
         <div class="cir yellow"></div>
         <div class="cir green"></div>
       </div>
-      <!-- 标题 -->
+      <!-- Title -->
       <div class="title">
-        <label>弹幕信息</label>
+        <label>Barrage Information</label>
       </div>
       <div class="type-icons">
         <CastTypeBtn v-for="item in castTypes" :key="item.id" :type="item.type" @change="handleCastTypeBtn" />
@@ -53,9 +53,9 @@ import CastItem from './CastItem.vue';
 import { CastMethod, type DyMessage } from '@/core/dycast';
 import { throttle } from '@/utils/loashUtil';
 
-// vue-virtual-scroller 基本原理
-// 生成一个大致等于总内容高的dom
-// 然后监听该dom的滚动，判断那些元素需要显示
+// vue-virtual-scroller basic principle
+// Generate a dom that is roughly equal to the total content height
+// Then listen to the scroll of the dom to determine which elements need to be displayed
 
 interface CastListProps {
   title?: string;
@@ -70,10 +70,10 @@ const props = withDefaults(defineProps<CastListProps>(), {
   noPrefix: false,
   pos: 'center'
 });
-// 类型控制器
+// Type controller
 const typeMap: Map<CastMethod, boolean> = new Map();
 
-/** 右侧类型控制按钮 */
+/** Right type control button */
 const castTypes = computed(() => {
   return props.types.map(item => {
     return {
@@ -83,19 +83,19 @@ const castTypes = computed(() => {
   });
 });
 /**
- * 控制弹幕显示
+ * Control barrage display
  * @param active
  * @param type
  */
 const handleCastTypeBtn = function (active?: boolean, type?: CastType) {
   if (type) {
     setCastType(type, active);
-    // 整理显示
+    // Organize display
     addCasts(allCasts, true);
   }
 };
 /**
- * 设置弹幕类型显隐状态
+ * Set the display status of the barrage type
  * @param type
  * @param flag
  */
@@ -120,18 +120,18 @@ const setCastType = function (type: CastType, flag?: boolean) {
   }
 };
 
-/** 显示弹幕 */
+/** Display barrage */
 const casts = ref<DyMessage[]>([]);
-// 所有弹幕
+// All barrage
 const allCasts: DyMessage[] = [];
-// 添加弹幕
+// Add barrage
 const appendCasts = function (msgs: DyMessage[]) {
   if (!msgs || !msgs.length) return;
   allCasts.push(...msgs);
   addCasts(msgs);
 };
 /**
- * 设置弹幕显示
+ * Set barrage display
  */
 const addCasts = function (msgs: DyMessage[], isClear: boolean = false) {
   const list: DyMessage[] = msgs.filter(item => {
@@ -145,14 +145,14 @@ const addCasts = function (msgs: DyMessage[], isClear: boolean = false) {
   });
 };
 /**
- * 清空弹幕
+ * Clear barrage
  */
 const clearCasts = function () {
   allCasts.length = 0;
   casts.value = [];
 };
 onMounted(() => {
-  // 初始化
+  // Initialization
   if (props.types) {
     for (const key of props.types) {
       setCastType(key, true);
@@ -164,10 +164,10 @@ onMounted(() => {
   }
 });
 
-/** 列表DOM Ref */
+/** List DOM Ref */
 const listRef = ref();
 
-// 判断是否滚动到底部的容差值，避免边缘情况
+// Tolerance value for judging whether to scroll to the bottom to avoid edge cases
 const SCROLL_BTH = 50;
 
 let isAtBottom = true;
@@ -287,8 +287,8 @@ $darkText: #a5a5a5;
           width: 5px;
         }
         &::-webkit-scrollbar-thumb {
-          background: #3f3f3f; // 滑块颜色
-          border-radius: 2.5px; // 滑块圆角
+          background: #3f3f3f; // Slider color
+          border-radius: 2.5px; // Slider border radius
         }
         &::-webkit-scrollbar-thumb:hover {
           background: #595959;
@@ -298,7 +298,7 @@ $darkText: #a5a5a5;
         }
         &::-webkit-scrollbar-track {
           background: rgba(61, 61, 61, 0.5);
-          border-radius: 2.5px; // 滑块圆角
+          border-radius: 2.5px; // Slider border radius
         }
       }
     }
@@ -363,8 +363,8 @@ $darkText: #a5a5a5;
       width: 5px;
     }
     &::-webkit-scrollbar-thumb {
-      background: #ccc; // 滑块颜色
-      border-radius: 2.5px; // 滑块圆角
+      background: #ccc; // Slider color
+      border-radius: 2.5px; // Slider border radius
     }
     &::-webkit-scrollbar-thumb:hover {
       background: #bbb;
@@ -374,7 +374,7 @@ $darkText: #a5a5a5;
     }
     &::-webkit-scrollbar-track {
       background: rgba(217, 217, 217, 0.3);
-      border-radius: 2.5px; // 滑块圆角
+      border-radius: 2.5px; // Slider border radius
     }
   }
 }

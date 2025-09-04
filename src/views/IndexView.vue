@@ -21,32 +21,32 @@
       </div>
     </div>
     <div class="view-center">
-      <!-- 主要弹幕：聊天、礼物 -->
+      <!-- Main barrage: chat, gift -->
       <CastList :types="['chat', 'gift']" ref="castEl" />
     </div>
     <div class="view-right">
       <div class="view-input">
         <ConnectInput
           ref="roomInput"
-          label="房间号"
-          placeholder="请输入房间号"
+          label="Room"
+          placeholder="Please enter the room number"
           v-model:value="roomNum"
           :test="verifyRoomNumber"
           @confirm="connectLive"
           @cancel="disconnectLive" />
         <ConnectInput
           ref="relayInput"
-          label="WS地址"
-          placeholder="请输入转发地址"
-          confirm-text="转发"
-          cancel-text="停止"
+          label="WS Address"
+          placeholder="Please enter the forwarding address"
+          confirm-text="Forward"
+          cancel-text="Stop"
           v-model:value="relayUrl"
           :test="verifyWssUrl"
           @confirm="relayCast"
           @cancel="stopRelayCast" />
       </div>
       <div class="view-other">
-        <!-- 其它弹幕：关注、点赞、进入、控制台等 -->
+        <!-- Other barrage: follow, like, enter, console, etc. -->
         <CastList ref="otherEl" :types="['social', 'like', 'member']" pos="left" no-prefix theme="dark" />
       </div>
     </div>
@@ -77,21 +77,21 @@ import SkMessage from '@/components/Message';
 import { formatDate } from '@/utils/commonUtil';
 import FileSaver from '@/utils/fileUtil';
 
-// 连接状态
+// Connection status
 const connectStatus = ref<ConnectStatus>(0);
-// 转发状态
+// Forwarding status
 const relayStatus = ref<ConnectStatus>(0);
-// 房间号
+// Room number
 const roomNum = ref<string>('');
-// 房间号输入框状态
+// Room number input box status
 const roomInputRef = useTemplateRef('roomInput');
-// 转发地址
+// Forwarding address
 const relayUrl = ref<string>('');
 const relayInputRef = useTemplateRef('relayInput');
-// 状态面板
+// Status panel
 const statusPanelRef = useTemplateRef('panel');
 
-/** 直播间信息 */
+/** Live room information */
 const cover = ref<string>('');
 const title = ref<string>('*****');
 const avatar = ref<string>('');
@@ -101,21 +101,21 @@ const memberCount = ref<string | number>('*****');
 const userCount = ref<string | number>('*****');
 const likeCount = ref<string | number>('*****');
 
-// 主要弹幕
+// Main barrage
 const castRef = useTemplateRef('castEl');
-// 其它弹幕
+// Other barrage
 const otherRef = useTemplateRef('otherEl');
-// 所有弹幕
+// All barrage
 const allCasts: DyMessage[] = [];
-// 记录弹幕
+// Record barrage
 const castSet = new Set<string>();
-// 弹幕客户端
+// Barrage client
 let castWs: DyCast | undefined;
-// 转发客户端
+// Forwarding client
 let relayWs: RelayCast | undefined;
 
 /**
- * 验证房间号
+ * Verify room number
  * @param value
  * @returns
  */
@@ -123,12 +123,12 @@ function verifyRoomNumber(value: string) {
   const flag = verifyRoomNum(value);
   if (flag) return { flag, message: '' };
   else {
-    return { flag, message: '房间号错误' };
+    return { flag, message: 'Incorrect room number' };
   }
 }
 
 /**
- * 验证转发地址 WsUrl
+ * Verify forwarding address WsUrl
  * @param value
  * @returns
  */
@@ -136,22 +136,22 @@ function verifyWssUrl(value: string) {
   const flag = verifyWsUrl(value);
   if (flag) return { flag, message: '' };
   else {
-    return { flag, message: '转发地址错误' };
+    return { flag, message: 'Incorrect forwarding address' };
   }
 }
 
-/** 设置房间号输入框状态 */
+/** Set room number input box status */
 const setRoomInputStatus = function (flag?: boolean) {
   if (roomInputRef.value) roomInputRef.value.setStatus(flag);
 };
 
-/** 设置转发地址输入框状态 */
+/** Set forwarding address input box status */
 const setRelayInputStatus = function (flag?: boolean) {
   if (relayInputRef.value) relayInputRef.value.setStatus(flag);
 };
 
 /**
- * 设置房间统计信息
+ * Set room statistics information
  * @param room
  * @returns
  */
@@ -163,7 +163,7 @@ const setRoomCount = function (room?: LiveRoom) {
   if (room.totalUserCount) userCount.value = `${room.totalUserCount}`;
 };
 /**
- * 设置直播间信息
+ * Set live room information
  * @param info
  */
 const setRoomInfo = function (info?: DyLiveInfo) {
@@ -175,7 +175,7 @@ const setRoomInfo = function (info?: DyLiveInfo) {
 };
 
 /**
- * 处理消息列表
+ * Process message list
  */
 const handleMessages = function (msgs: DyMessage[]) {
   const newCasts: DyMessage[] = [];
@@ -224,7 +224,7 @@ const handleMessages = function (msgs: DyMessage[]) {
           break;
         case CastMethod.CONTROL:
           if (msg?.room?.status !== RoomStatus.LIVING) {
-            // 已经下播
+            // The live has ended
             newCasts.push(msg);
             otherCasts.push(msg);
             disconnectLive();
@@ -233,7 +233,7 @@ const handleMessages = function (msgs: DyMessage[]) {
       }
     }
   } catch (err) {}
-  // 记录
+  // Record
   allCasts.push(...newCasts);
   if (castRef.value) castRef.value.appendCasts(mainCasts);
   if (otherRef.value) otherRef.value.appendCasts(otherCasts);
@@ -243,7 +243,7 @@ const handleMessages = function (msgs: DyMessage[]) {
 };
 
 /**
- * 添加控制台消息
+ * Add console message
  * @param msg
  */
 const addConsoleMessage = function (content: string) {
@@ -253,13 +253,13 @@ const addConsoleMessage = function (content: string) {
         id: getId(),
         method: CastMethod.CUSTOM,
         content,
-        user: { name: '控制台' }
+        user: { name: 'Console' }
       }
     ]);
 };
 
 /**
- * 清理列表
+ * Clear list
  */
 function clearMessageList() {
   castSet.clear();
@@ -269,51 +269,51 @@ function clearMessageList() {
 }
 
 /**
- * 连接房间
+ * Connect to room
  */
 const connectLive = function () {
   try {
-    // 清空上一次连接的消息
+    // Clear the messages from the last connection
     clearMessageList();
-    CLog.debug('正在连接:', roomNum.value);
-    SkMessage.info(`正在连接：${roomNum.value}`);
+    CLog.debug('Connecting:', roomNum.value);
+    SkMessage.info(`Connecting: ${roomNum.value}`);
     const cast = new DyCast(roomNum.value);
     cast.on('open', (ev, info) => {
-      CLog.info('DyCast 房间连接成功');
-      SkMessage.success(`房间连接成功[${roomNum.value}]`);
+      CLog.info('DyCast room connected successfully');
+      SkMessage.success(`Room connected successfully[${roomNum.value}]`);
       setRoomInputStatus(true);
       connectStatus.value = 1;
       setRoomInfo(info);
-      addConsoleMessage('直播间已连接');
+      addConsoleMessage('Live room connected');
     });
     cast.on('error', err => {
-      CLog.error('DyCast 连接出错 =>', err);
-      SkMessage.error(`连接出错: ${err}`);
+      CLog.error('DyCast connection error =>', err);
+      SkMessage.error(`Connection error: ${err}`);
       connectStatus.value = 2;
       setRoomInputStatus(false);
     });
     cast.on('close', (code, reason) => {
-      CLog.info(`DyCast 房间已关闭[${code}] => ${reason}`);
+      CLog.info(`DyCast room closed[${code}] => ${reason}`);
       connectStatus.value = 3;
       setRoomInputStatus(false);
       switch (code) {
         case DyCastCloseCode.NORMAL:
-          SkMessage.success('断开成功');
+          SkMessage.success('Disconnected successfully');
           break;
         case DyCastCloseCode.LIVE_END:
-          SkMessage.info('主播已下播');
+          SkMessage.info('The host has gone offline');
           break;
         case DyCastCloseCode.CANNOT_RECEIVE:
-          SkMessage.error('无法正常接收信息，已关闭');
+          SkMessage.error('Unable to receive information normally, closed');
           break;
         default:
-          SkMessage.info('房间已关闭');
+          SkMessage.info('Room closed');
       }
       if (code === DyCastCloseCode.LIVE_END) {
-        addConsoleMessage(reason || '主播尚未开播或已下播');
+        addConsoleMessage(reason || 'The host has not started broadcasting or has gone offline');
       } else {
-        if (statusPanelRef.value) addConsoleMessage(`连接已关闭，共持续: ${statusPanelRef.value.getDuration()}`);
-        else addConsoleMessage('连接已关闭');
+        if (statusPanelRef.value) addConsoleMessage(`Connection closed, duration: ${statusPanelRef.value.getDuration()}`);
+        else addConsoleMessage('Connection closed');
       }
     });
     cast.on('message', msgs => {
@@ -322,87 +322,87 @@ const connectLive = function () {
     cast.on('reconnecting', (count, code, reason) => {
       switch (code) {
         case DyCastCloseCode.CANNOT_RECEIVE:
-          // 无法正常接收信息
-          SkMessage.warning('无法正常接收弹幕，准备重连中');
+          // Unable to receive information normally
+          SkMessage.warning('Unable to receive barrage normally, preparing to reconnect');
           break;
         default:
-          CLog.warn('DyCast 重连中 =>', count);
-          SkMessage.warning(`正在重连中: ${count}`);
+          CLog.warn('DyCast reconnecting =>', count);
+          SkMessage.warning(`Reconnecting: ${count}`);
       }
     });
     cast.on('reconnect', ev => {
-      CLog.info('DyCast 重连成功');
-      SkMessage.success('房间重连完成');
+      CLog.info('DyCast reconnected successfully');
+      SkMessage.success('Room reconnection complete');
     });
     cast.connect();
     castWs = cast;
   } catch (err) {
-    CLog.error('房间连接过程出错:', err);
-    SkMessage.error('房间连接过程出错');
+    CLog.error('Error during room connection process:', err);
+    SkMessage.error('Error during room connection process');
     setRoomInputStatus(false);
     castWs = void 0;
   }
 };
-/** 断开连接 */
+/** Disconnect */
 const disconnectLive = function () {
-  if (castWs) castWs.close(1000, '断开连接');
+  if (castWs) castWs.close(1000, 'Disconnect');
 };
 
-/** 连接转发房间 */
+/** Connect to forwarding room */
 const relayCast = function () {
   try {
-    CLog.info('正在连接转发中 =>', relayUrl.value);
-    SkMessage.info(`转发连接中: ${relayUrl.value}`);
+    CLog.info('Connecting to forward =>', relayUrl.value);
+    SkMessage.info(`Forwarding connection in progress: ${relayUrl.value}`);
     const cast = new RelayCast(relayUrl.value);
     cast.on('open', () => {
-      CLog.info(`DyCast 转发连接成功`);
-      SkMessage.success(`已开始转发`);
+      CLog.info(`DyCast forwarding connected successfully`);
+      SkMessage.success(`Forwarding started`);
       setRelayInputStatus(true);
       relayStatus.value = 1;
-      addConsoleMessage('转发客户端已连接');
+      addConsoleMessage('Forwarding client connected');
       if (castWs) {
-        // 发送直播间信息给转发地址
+        // Send live room information to the forwarding address
         cast.send(JSON.stringify(castWs.getLiveInfo()));
       }
     });
     cast.on('close', (code, msg) => {
-      CLog.info(`(${code})dycast 转发已关闭: ${msg || '未知原因'}`);
-      if (code === 1000) SkMessage.info(`已停止转发`);
-      else SkMessage.warning(`转发已停止: ${msg || '未知原因'}`);
+      CLog.info(`(${code})dycast forwarding closed: ${msg || 'Unknown reason'}`);
+      if (code === 1000) SkMessage.info(`Forwarding stopped`);
+      else SkMessage.warning(`Forwarding stopped: ${msg || 'Unknown reason'}`);
       setRelayInputStatus(false);
       relayStatus.value = 0;
-      addConsoleMessage('转发已关闭');
+      addConsoleMessage('Forwarding closed');
     });
     cast.on('error', ev => {
-      CLog.warn(`dycast 转发出错: ${ev.message}`);
-      SkMessage.error(`转发出错了: ${ev.message}`);
+      CLog.warn(`dycast forwarding error: ${ev.message}`);
+      SkMessage.error(`Forwarding error: ${ev.message}`);
       setRelayInputStatus(false);
       relayStatus.value = 2;
     });
     cast.connect();
     relayWs = cast;
   } catch (err) {
-    CLog.error('弹幕转发出错:', err);
-    SkMessage.error('转发出错: ${err.message}');
+    CLog.error('Barrage forwarding error:', err);
+    SkMessage.error('Forwarding error: ${err.message}');
     setRelayInputStatus(false);
     relayStatus.value = 2;
     relayWs = void 0;
   }
 };
-/** 暂停转发 */
+/** Pause forwarding */
 const stopRelayCast = function () {
   if (relayWs) relayWs.close(1000);
 };
 
-/** 将弹幕保存到本地文件 */
+/** Save barrage to local file */
 const saveCastToFile = function () {
   if (connectStatus.value === 1) {
-    SkMessage.warning('请断开连接后再保存');
+    SkMessage.warning('Please disconnect before saving');
     return;
   }
   const len = allCasts.length;
   if (len <= 0) {
-    SkMessage.warning('暂无弹幕需要保存');
+    SkMessage.warning('No barrage to save');
     return;
   }
   const date = formatDate(new Date(), 'yyyy-MM-dd_HHmmss');
@@ -412,20 +412,20 @@ const saveCastToFile = function () {
     name: fileName,
     ext: '.json',
     mimeType: 'application/json',
-    description: '弹幕数据',
+    description: 'Barrage data',
     existStrategy: 'new'
   })
     .then(res => {
       if (res.success) {
-        SkMessage.success('弹幕保存成功');
+        SkMessage.success('Barrage saved successfully');
       } else {
-        SkMessage.error('弹幕保存失败');
-        CLog.error('弹幕保存失败 =>', res.message);
+        SkMessage.error('Failed to save barrage');
+        CLog.error('Failed to save barrage =>', res.message);
       }
     })
     .catch(err => {
-      SkMessage.error('弹幕保存出错了');
-      CLog.error('弹幕保存出错了 =>', err);
+      SkMessage.error('Error saving barrage');
+      CLog.error('Error saving barrage =>', err);
     });
 };
 </script>

@@ -8,8 +8,8 @@ interface RelayCastEvent extends EventMap {
 }
 
 /**
- * 弹幕转发器
- *  - 简单封装一下，有问题再优化
+ * Barrage forwarder
+ *  - Simple encapsulation, optimize if there are problems
  */
 export class RelayCast {
   private url: string;
@@ -24,7 +24,7 @@ export class RelayCast {
   }
 
   /**
-   * 监听
+   * Listen
    * @param event
    * @param listener
    */
@@ -33,7 +33,7 @@ export class RelayCast {
   }
 
   /**
-   * 取消监听
+   * Cancel listening
    * @param event
    * @param listener
    */
@@ -42,8 +42,8 @@ export class RelayCast {
   }
 
   /**
-   * 一次性监听
-   *  - 如监听打开关闭
+   * One-time listening
+   *  - Such as listening for open and close
    * @param event
    * @param listener
    */
@@ -52,7 +52,7 @@ export class RelayCast {
   }
 
   /**
-   * 连接
+   * Connect
    */
   connect() {
     try {
@@ -70,13 +70,13 @@ export class RelayCast {
         this.emitter.emit('message', ev.data);
       });
     } catch (err) {
-      this.emitter.emit('error', Error('转发服务器连接出错'));
+      this.emitter.emit('error', Error('Forwarding server connection error'));
       this.emitter.emit('close', 4002);
     }
   }
 
   /**
-   * 是否连接
+   * Whether to connect
    */
   isConnected() {
     if (this.ws) return this.ws.readyState === WebSocket.OPEN;
@@ -84,7 +84,7 @@ export class RelayCast {
   }
 
   /**
-   * 发送消息
+   * Send message
    * @param data
    */
   send(data: string | ArrayBuffer) {
@@ -92,7 +92,7 @@ export class RelayCast {
   }
 
   /**
-   * 关闭转发
+   * Close forwarding
    * @param code
    * @param msg
    */

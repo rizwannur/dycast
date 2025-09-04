@@ -30,15 +30,15 @@ const props = withDefaults(defineProps<CastTypeBtnProps>(), {
 const emits = defineEmits(['change']);
 
 const typeTips: Record<CastType, string> = {
-  chat: '聊天',
-  gift: '礼物',
-  like: '点赞',
-  member: '进入',
-  social: '关注'
+  chat: 'Chat',
+  gift: 'Gift',
+  like: 'Like',
+  member: 'Member',
+  social: 'Social'
 };
 
 const active = ref(props.defaultValue);
-/** 点击按钮 */
+/** Click button */
 const handleClick = function () {
   let flag = !0;
   if (active.value) flag = !1;
